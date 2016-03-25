@@ -1,0 +1,285 @@
+// Modern Sass BEM Grid for Foundation
+// andreabrandi.com
+// Licensed under MIT Open Source
+
+////
+/// @group grid
+////
+
+/// Check if Zurb Foundation is available
+@if not function-exists(breakpoint) {
+    @error "This grid requires Zurb Foundation v6.2.0 or newer to work properly.";
+}
+
+@import 'settings';
+
+/// Generate class names for the grid.
+///
+/// @param {String} $style - Type of style (fraction, fragment or percentage).
+/// @param {Number} $numerator - Numerator for the calc.
+/// @param {Number} $denominator - Denominator for the calc.
+/// @param {Keyword} $breakpoint-name - Name of the breakpoint.
+///
+/// @returns {String} $class-name - Generated class name.
+@function CreateClassName(
+    $style,
+    $numerator,
+    $denominator,
+    $breakpoint-name
+) {
+    $class-name: null;
+
+    @if $style == 'fraction' or $style == 'fragment' {
+        // Set delimiter as slash or text
+        $delimiter: if($style == 'fraction', \/, -of-);
+        $class-name: #{$grid-width-class}\3#{$numerator}#{$delimiter}#{$denominator}#{$breakpoint-name};
+    } @else {
+        @if $grid-width-class == '' {
+            @error "Percentage value class names require a namespace to be set (see $grid-width-class). Selective escaping (e.g. the 5 of 50) cannot be done.";
+        }
+        $class-width: floor(($numerator / $denominator) * 100);
+        $class-name: #{$grid-width-class}#{$class-width}#{$breakpoint-name};
+    }
+
+    @return $class-name;
+}
+
+/// Make grid widths classes
+///
+/// @param {List} $widths [$grid-widths] - Width of the triangle.
+/// @param {Keyword} $breakpoint-name [null] - Name of the breakpoint.
+@mixin grid-widths(
+    $widths: $grid-widths,
+    $breakpoint-name: null
+) {
+    // Initialise an empty utility map that will eventually contain all our classes
+    $pseudo-class-map: ();
+
+    @each $denominator in $widths {
+        // If 1=1, 2=2, 3=3; @for will skip over so create 1/1 class manually
+        @if ($denominator == 1) {
+            // Create 1/1 class
+            $class-name: CreateClassName($grid-width-class-style, 1, 1, $breakpoint-name);
+            .#{$class-name} { width: 100%; }
+        } @else {
+            // Loop widths as fractions
+            @for $numerator from 1 to $denominator {
+                // Create class name and set width value
+                $class-name: CreateClassName($grid-width-class-style, $numerator, $denominator, $breakpoint-name);
+                $width-value: percentage($numerator / $denominator);
+                // Is this width already in our utility map?
+                $duplicate: map-get($pseudo-class-map, $width-value);
+                // Create width class
+                .#{$class-name} {
+                    // If this width is in utility map, @extend the duplicate, else create a new one
+                    @if $duplicate {
+                        @extend .#{$duplicate};
+                    } @else {
+                        width: $width-value;
+                    }
+                }
+                // Add this class to utility map
+                $add-class: ($width-value: $class-name);
+                $pseudo-class-map: map-merge($pseudo-class-map, $add-class);
+            }
+        }
+    }
+}
+
+/// Generate gutters for the cells.
+///
+/// @param {Map|Number} $gutter [$grid-gutter] - Spacing between columns.
+@mixin grid-gutter($gutter: $grid-gutter) {
+    @if type-of($gutter) == 'map' {
+        @each $breakpoint, $value in $gutter {
+            $padding: rem-calc($value) / 2;
+
+            @include breakpoint($breakpoint) {
+                padding-left: $padding;
+                padding-right: $padding;
+            }
+        }
+    } @else if type-of($gutter) == 'number' and strip-unit($gutter) > 0 {
+        $padding: rem-calc($gutter) / 2;
+        padding-left: $padding;
+        padding-right: $padding;
+    }
+}
+
+/// Inverts the margins of a grid to nest it inside other grids.
+///
+/// @param {Map|null} $gutter [null] - Gutter value. Set to `null` to refer to the responsive gutter settings.
+@mixin grid-gutter-nest($gutter: $grid-gutter) {
+    @if type-of($gutter) == 'number' {
+        $gutter: (small: $gutter);
+    }
+
+    @each $breakpoint, $value in $gutter {
+        $margin: rem-calc($value) / 2 * -1;
+
+        @include breakpoint($breakpoint) {
+            margin-left: $margin;
+            margin-right: $margin;
+        }
+    }
+}
+
+/// Creates a new grid
+///
+/// @param {String} $grid-class [$grid-namespace] - Name of the grid class.
+/// @param {Map|Number} $gutter [$grid-gutter] - Spacing between columns.
+@mixin grid(
+    $grid-class: $grid-namespace,
+    $gutter: $grid-gutter
+) {
+    .#{$grid-class} {
+        display: block;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        font-size: 0;
+
+        // Nesting
+        & & {
+            @include grid-gutter-nest($gutter);
+
+            &.#{$grid-class}--flush {
+                margin-left: 0;
+                margin-right: 0;
+            }
+        }
+    }
+
+    .#{$grid-class}__cell {
+        box-sizing: border-box;
+        display: inline-block;
+        width: 100%;
+        padding: 0;
+        @include grid-gutter($gutter);
+        margin: 0;
+        vertical-align: top;
+        font-size: 1rem;
+    }
+}
+
+/// Grid Layouts
+@mixin grid-layouts($grid-class: $grid-namespace) {
+    @if $grid-container {
+        .#{$grid-class}--container {
+            max-width: $grid-max-width;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    }
+
+    @if $grid-center {
+        .#{$grid-class}--center {
+            text-align: center;
+
+            > .#{$grid-class}__cell {
+                text-align: left;
+            }
+        }
+    }
+
+    @if $grid-cell-center {
+        .#{$grid-class}__cell--center {
+            display: block;
+            margin: 0 auto;
+        }
+    }
+
+    @if $grid-right {
+        .#{$grid-class}--right {
+            text-align: right;
+
+            > .#{$grid-class}__cell {
+                text-align: left;
+            }
+        }
+    }
+
+    @if $grid-middle {
+        .#{$grid-class}--middle {
+
+            > .#{$grid-class}__cell {
+                vertical-align: middle;
+            }
+        }
+    }
+
+    @if $grid-bottom {
+        .#{$grid-class}--bottom {
+
+            > .#{$grid-class}__cell {
+                vertical-align: bottom;
+            }
+        }
+    }
+
+    @if $grid-flush {
+        .#{$grid-class}--flush {
+            //margin-left: 0;
+            //margin-right: 0;
+
+            > .#{$grid-class}__cell {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+    }
+
+    @if $grid-auto {
+        .#{$grid-class}--auto {
+
+            > .#{$grid-class}__cell {
+                width: auto;
+            }
+        }
+    }
+
+    @if $grid-rev {
+        .#{$grid-class}--rev {
+            direction: rtl;
+
+            > .#{$grid-class}__cell {
+                direction: ltr;
+            }
+        }
+    }
+
+    @if $grid-test {
+        .#{$grid-class}--test {
+            padding: 10px;
+            text-align: center;
+            background: #f2f2f2;
+
+            > .#{$grid-class}__cell {
+                .box {
+                    padding: 10px;
+                    margin: 10px 0;
+                    text-align: center;
+                    background: #cecece;
+                    color: #787878;
+                }
+            }
+        }
+    }
+}
+
+/// Make default Grid Styles
+@mixin foundation-bem-grid() {
+    // Make default grid
+    @include grid();
+    // Make grid layouts
+    @include grid-layouts();
+    // Loop default widths
+    @include grid-widths($grid-widths);
+
+    // Loop responsive widths
+    @if $grid-responsive {
+        @include -zf-each-breakpoint {
+            @include grid-widths($grid-widths, --#{$-zf-size});
+        }
+    }
+}

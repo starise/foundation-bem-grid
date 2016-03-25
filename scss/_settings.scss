@@ -1,0 +1,49 @@
+// Modern Sass BEM Grid for Foundation
+// andreabrandi.com
+// Licensed under MIT Open Source
+
+/// Prefix namespace for grid layout and cells
+/// @type String
+$grid-namespace: 'grid' !default;
+
+/// Prefix namespace for width classes
+/// @type String
+$grid-width-class: '' !default;
+
+/// Width class naming style. Can be 'fraction', 'percentage' or 'fragment'
+/// @type String
+$grid-width-class-style: 'fraction' !default;
+
+/// Max width of the grid when used as --container.
+/// @type Length
+$grid-max-width: $global-width;
+
+/// Sass list of width denominator values (when expressed as a fraction).
+/// @type List
+$grid-widths: (
+    2,
+    3,
+    4
+) !default;
+
+/// The amount of space between columns at different screen sizes.
+/// To use just one size, set the variable to a number instead of a map.
+/// @type Map | Length
+$grid-gutter: '20px' !default;
+
+/// Enable/disable responsive breakpoints
+/// @type Boolean
+$grid-responsive: true !default;
+
+/// Enable/disable grid layouts
+/// @type Boolean
+$grid-container:    true !default;
+$grid-center:       true !default;
+$grid-cell-center:  true !default;
+$grid-right:        true !default;
+$grid-middle:       true !default;
+$grid-bottom:       true !default;
+$grid-flush:        true !default;
+$grid-auto:         true !default;
+$grid-rev:          true !default;
+$grid-test:         true !default;

@@ -1,0 +1,28 @@
+{
+  "name": "foundation-bem-grid",
+  "description": "Modern Sass BEM Grid for Foundation 6",
+  "main": "scss/_bem-grid.scss",
+  "dependencies": {
+    "foundation-sites": "^6.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/starise/foundation-bem-grid"
+  },
+  "keywords": [
+    "css",
+    "grid",
+    "sass",
+    "foundation"
+  ],
+  "author": "Andrea Brandi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/starise/foundation-bem-grid/issues"
+  },
+  "homepage": "https://github.com/starise/foundation-bem-grid#readme"
+}

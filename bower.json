@@ -1,0 +1,20 @@
+{
+  "name": "foundation-bem-grid",
+  "description": "Modern Sass BEM Grid for Foundation 6",
+  "main": [
+    "scss/_bem-grid.scss"
+  ],
+  "keywords": [
+    "css",
+    "grid",
+    "sass",
+    "foundation"
+  ],
+  "authors": [
+    "Andrea Brandi"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "foundation-sites": "^6.2.0"
+  }
+}
