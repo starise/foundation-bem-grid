@@ -1,6 +1,6 @@
 {
   "name": "foundation-bem-grid",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Modern Sass BEM Grid for Foundation 6",
   "main": "scss/_bem-grid.scss",
   "dependencies": {
